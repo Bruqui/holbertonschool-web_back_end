@@ -5,3 +5,4 @@ babel.config.js
 node_modules
 .eslintrc.js
 nodesource_setup.sh
+*-main.js
