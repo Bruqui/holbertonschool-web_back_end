@@ -1,2 +1,7 @@
-node_modules/
-nodesource*
+package.json
+package-lock.json
+babel.config.js
+.gitignore
+node_modules
+.eslintrc.js
+nodesource_setup.sh
