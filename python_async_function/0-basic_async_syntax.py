@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+"""
+This file contains an asynchronous function that waits for a random delay and
+returns it.
+"""
 
 import asyncio
 import random
