@@ -4,8 +4,9 @@ This file contains a function to create and return asyncio tasks for
 wait_random.
 """
 
+import asyncio
 from typing import List
-wait_random = __import__('0-basic_async_syntax').wait_random
+task_wait_random = __import__('3-tasks').task_wait_random
 
 
 async def task_wait_n(n: int, max_delay: int) -> List[float]:
@@ -17,8 +18,8 @@ async def task_wait_n(n: int, max_delay: int) -> List[float]:
     Returns:
         list: A list of random delays in ascending order without using sort().
     """
-    gecikme = []
-    for _ in range(n):
-        notdelay = await wait_random(max_delay)
-        gecikme.append(notdelay)
-    return sorted(gecikme)
+    listounette = []
+    for i in range(n):
+        listounette.append(task_wait_random(max_delay))
+    sor = await asyncio.gather(*listounette)
+    return sorted(sor)
