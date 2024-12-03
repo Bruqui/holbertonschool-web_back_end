@@ -5,5 +5,6 @@ babel.config.js
 node_modules
 .eslintrc.js
 nodesource_setup.sh
-*-main.js
+*-main.*
 utils.js
+__pycache__
