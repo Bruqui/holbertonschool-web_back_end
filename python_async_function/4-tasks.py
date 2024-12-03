@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-This file contains a function to create and return asyncio tasks for wait_random.
+This file contains a function to create and return asyncio tasks for
+wait_random.
 """
 
 import asyncio
