@@ -4,11 +4,11 @@ This file contains an asynchronous function that runs multiples wait_random
 coroutines concurrently.
 """
 
-import asyncio
+from typing import List
 wait_random = __import__('0-basic_async_syntax').wait_random
 
 
-async def wait_n(n: int, max_delay: int) -> list:
+async def wait_n(n: int, max_delay: int) -> List[float]:
     """
     Asynchronously runs wait_random n times with a specified max_delay.
     Args:
@@ -17,6 +17,8 @@ async def wait_n(n: int, max_delay: int) -> list:
     Returns:
         list: A list of random delays in ascending order without using sort().
     """
-    tasks = [wait_random(max_delay) for _ in range(n)]
-    delays = await asyncio.gather(*tasks)
-    return delays
+    delays = []
+    for _ in range(n):
+        notdelay = await wait_random(max_delay)
+        delays.append(notdelay)
+    return sorted(delays)
