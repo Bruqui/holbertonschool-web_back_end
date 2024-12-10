@@ -1,3 +1,5 @@
+// Script to list all databases in MongoDB
+
 db.getMongo().getDBs().databases.forEach(function(database) {
     print(database.name + "\t" + (database.sizeOnDisk / 1024 / 1024 / 1024).toFixed(3) + "GB");
 });
