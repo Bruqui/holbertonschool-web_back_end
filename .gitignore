@@ -8,3 +8,4 @@ nodesource_setup.sh
 *-main.*
 utils.js
 __pycache__
+database.csv
