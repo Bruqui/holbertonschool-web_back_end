@@ -1,36 +1,44 @@
-const readDatabase = require('../utils');
+import { readDatabase } from '../utils.js';
 
 class StudentsController {
   static async getAllStudents(req, res) {
+    const databaseFile = process.argv[2];
+
     try {
-      const fields = await readDatabase(process.argv[2]);
-      let output = 'This is the list of our students\n';
+      const students = await readDatabase(databaseFile);
+      const responseLines = ['This is the list of our students'];
 
-      for (const field of Object.keys(fields).sort()) {
-        output += `Number of students in ${field}: ${fields[field].length}. List: ${fields[field].join(', ')}\n`;
-      }
+      Object.keys(students)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+        .forEach((field) => {
+          responseLines.push(
+            `Number of students in ${field}: ${students[field].length}. List: ${students[field].join(', ')}`,
+          );
+        });
 
-      res.status(200).send(output);
-    } catch (error) {
-      res.status(500).send('Cannot load the database');
+      res.status(200).send(responseLines.join('\n'));
+    } catch (err) {
+      res.status(500).send(err.message);
     }
   }
 
   static async getAllStudentsByMajor(req, res) {
+    const databaseFile = process.argv[2];
     const { major } = req.params;
 
-    if (major !== 'CS' && major !== 'SWE') {
+    if (!['CS', 'SWE'].includes(major)) {
       res.status(500).send('Major parameter must be CS or SWE');
       return;
     }
 
     try {
-      const fields = await readDatabase(process.argv[2]);
-      res.status(200).send(`List: ${fields[major].join(', ')}`);
-    } catch (error) {
-      res.status(500).send('Cannot load the database');
+      const students = await readDatabase(databaseFile);
+      const studentList = students[major] || [];
+      res.status(200).send(`List: ${studentList.join(', ')}`);
+    } catch (err) {
+      res.status(500).send(err.message);
     }
   }
 }
 
-module.exports = StudentsController;
+export default StudentsController;
