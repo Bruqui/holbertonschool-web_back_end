@@ -2,39 +2,23 @@ const fs = require('fs');
 
 function countStudents(path) {
   try {
-    const data = fs.readFileSync(path, 'utf8');
-    const lines = data.split('\n').filter((line) => line.trim() !== '');
+    const data = fs.readFileSync(path, { encoding: 'utf8', flag: 'r' });
+    const [headerLine, ...lines] = data.split('\n').filter((line) => line.length > 0);
+    const headers = headerLine.split(',');
 
-    if (lines.length <= 1) {
-      console.log('Number of students: 0');
-      return;
-    }
+    console.log(`Number of students: ${lines.length}`);
 
-    const header = lines[0].split(',');
-    const studentData = lines.slice(1);
-    const fieldCounts = {};
-    const fieldStudents = {};
+    const listObj = lines.map((line) => line.split(',').reduce((object, currentValue, index) => Object.assign(object, { [headers[index]]: currentValue }), {}));
 
-    for (const line of studentData) {
-      const record = line.split(',');
-      if (record.length === header.length) {
-        const firstName = record[0].trim();
-        const field = record[3].trim();
-        if (!fieldCounts[field]) {
-          fieldCounts[field] = 0;
-          fieldStudents[field] = [];
-        }
-        fieldCounts[field] += 1;
-        fieldStudents[field].push(firstName);
+    const groupByField = listObj.reduce((res, currentValue) => {
+      res[currentValue.field] = res[currentValue.field] || [];
+      res[currentValue.field].push(currentValue.firstname);
+      return res;
+    }, {});
+    for (const key in groupByField) {
+      if (key) {
+        console.log(`Number of students in ${key}: ${groupByField[key].length}. List: ${groupByField[key].join(', ')}`);
       }
-    }
-
-    const totalStudents = Object.values(fieldCounts).reduce((acc, count) => acc + count, 0);
-    console.log(`Number of students: ${totalStudents}`);
-
-    for (const [field, count] of Object.entries(fieldCounts)) {
-      const studentList = fieldStudents[field].join(', ');
-      console.log(`Number of students in ${field}: ${count}. List: ${studentList}`);
     }
   } catch (err) {
     throw new Error('Cannot load the database');
