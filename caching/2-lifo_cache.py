@@ -31,14 +31,11 @@ class LIFOCache(BaseCaching):
         if key is None or item is None:
             return
 
-        # Si la clé n'est pas déjà dans le cache et qu'on dépasse la limite
         if key not in self.cache_data:
             if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-                # On supprime la dernière clé enregistrée
                 del self.cache_data[self.last_key]
                 print("DISCARD: {}".format(self.last_key))
 
-        # On insère/met à jour l'élément et on marque cette clé comme la dernière
         self.cache_data[key] = item
         self.last_key = key
 
