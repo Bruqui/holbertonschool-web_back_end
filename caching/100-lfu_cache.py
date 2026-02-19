@@ -18,8 +18,8 @@ class LFUCache(BaseCaching):
         de fréquences et l'ordre d'utilisation.
         """
         super().__init__()
-        self.usage_counts = {}  # Stocke la fréquence {key: count}
-        self.usage_order = []   # Stocke l'ordre d'utilisation pour le LRU
+        self.usage_counts = {}
+        self.usage_order = []
 
     def __update_meta(self, key):
         """ Méthode interne pour mettre à jour les métadonnées.
@@ -40,7 +40,6 @@ class LFUCache(BaseCaching):
         if key is None or item is None:
             return
 
-        # Si la clé existe déjà, on met juste à jour
         if key in self.cache_data:
             self.cache_data[key] = item
             self.__update_meta(key)
@@ -48,13 +47,10 @@ class LFUCache(BaseCaching):
 
         # Si le cache est plein
         if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
-            # Trouver la fréquence minimale
             min_freq = min(self.usage_counts.values())
-            # Filtrer les clés qui ont cette fréquence minimale
             potential_discards = [k for k, v in self.usage_counts.items()
                                   if v == min_freq]
 
-            # Si plusieurs candidats, on applique le LRU (le premier dans l'ordre)
             discard_key = None
             for k in self.usage_order:
                 if k in potential_discards:
@@ -67,7 +63,6 @@ class LFUCache(BaseCaching):
             self.usage_order.remove(discard_key)
             print("DISCARD: {}".format(discard_key))
 
-        # Insertion du nouvel élément
         self.cache_data[key] = item
         self.usage_counts[key] = 1
         self.usage_order.append(key)
