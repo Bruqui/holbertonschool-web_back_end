@@ -78,3 +78,30 @@ def get_db() -> mysql.connector.connection.MySQLConnection:
         host=db_host,
         database=db_name
     )
+
+
+def main() -> None:
+    """
+    Retrieves all rows in the users table and displays each row
+    under a filtered format.
+    """
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT * FROM users;")
+    
+    # Récupération du nom des colonnes
+    headers = [field[0] for field in cursor.description]
+    logger = get_logger()
+
+    for row in cursor:
+        # Création de la chaîne de caractères "champ=valeur; champ2=valeur2; "
+        message = "".join(f"{k}={v}; " for k, v in zip(headers, row))
+        # Le strip() supprime l'espace final en trop
+        logger.info(message.strip())
+
+    cursor.close()
+    db.close()
+
+
+if __name__ == "__main__":
+    main()
