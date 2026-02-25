@@ -14,6 +14,7 @@ class Auth:
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """
         Determines if authentication is required for a given path.
+        Now supports '*' at the end of excluded paths.
         """
         if path is None:
             return True
@@ -21,11 +22,19 @@ class Auth:
         if excluded_paths is None or not excluded_paths:
             return True
 
-        if not path.endswith('/'):
-            path += '/'
+        path_with_slash = path if path.endswith('/') else path + '/'
 
-        if path in excluded_paths:
-            return False
+        for excluded_path in excluded_paths:
+
+            if excluded_path.endswith('*'):
+
+                prefix = excluded_path[:-1]
+
+                if path.startswith(prefix):
+                    return False
+
+            elif path_with_slash == excluded_path or path == excluded_path:
+                return False
 
         return True
 
