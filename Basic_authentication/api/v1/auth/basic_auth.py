@@ -81,7 +81,7 @@ class BasicAuth(Auth):
             return None
 
         return user
-    
+
 
     def current_user(self, request=None) -> TypeVar('User'):
         """
@@ -104,4 +104,3 @@ class BasicAuth(Auth):
             return None
 
         return self.user_object_from_credentials(email, password)
-
