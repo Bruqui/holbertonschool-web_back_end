@@ -4,6 +4,7 @@ Module d'authentification pour gérer la sécurité des mots de passe
 et les opérations sur les utilisateurs.
 """
 import bcrypt
+import uuid
 from sqlalchemy.orm.exc import NoResultFound
 
 from db import DB
@@ -23,6 +24,16 @@ def _hash_password(password: str) -> bytes:
     pwd_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(pwd_bytes, salt)
+
+
+def _generate_uuid() -> str:
+    """
+    Génère une nouvelle représentation sous forme de chaîne d'un UUID.
+
+    Returns:
+        str: Un UUID généré aléatoirement.
+    """
+    return str(uuid.uuid4())
 
 
 class Auth:
