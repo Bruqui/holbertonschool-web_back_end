@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """
-Module d'authentification pour gérer la sécurité des mots de passe.
+Module d'authentification pour gérer la sécurité des mots de passe
+et les opérations sur les utilisateurs.
 """
 import bcrypt
+from sqlalchemy.orm.exc import NoResultFound
+
+from db import DB
+from user import User
 
 
 def _hash_password(password: str) -> bytes:
@@ -18,3 +23,37 @@ def _hash_password(password: str) -> bytes:
     pwd_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(pwd_bytes, salt)
+
+
+class Auth:
+    """
+    Classe Auth gérant l'authentification et l'interaction
+    avec la base de données.
+    """
+
+    def __init__(self) -> None:
+        """
+        Initialise une nouvelle instance Auth avec une connexion DB.
+        """
+        self._db = DB()
+
+    def register_user(self, email: str, password: str) -> User:
+        """
+        Enregistre un nouvel utilisateur s'il n'existe pas déjà.
+
+        Args:
+            email (str): L'email de l'utilisateur.
+            password (str): Le mot de passe en clair.
+
+        Returns:
+            User: L'objet User nouvellement créé.
+
+        Raises:
+            ValueError: Si l'utilisateur existe déjà avec cet email.
+        """
+        try:
+            self._db.find_user_by(email=email)
+            raise ValueError(f"User {email} already exists")
+        except NoResultFound:
+            hashed_pwd = _hash_password(password)
+            return self._db.add_user(email, hashed_pwd)
