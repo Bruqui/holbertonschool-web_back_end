@@ -52,3 +52,17 @@ class Auth:
         Returns the current user from a request.
         """
         return None
+
+    def session_cookie(self, request=None):
+        """
+        Returns a cookie value from a request.
+        """
+        if request is None:
+            return None
+
+        session_name = os.getenv("SESSION_NAME")
+
+        if session_name is not None:
+            return request.cookies.get(session_name)
+
+        return None
