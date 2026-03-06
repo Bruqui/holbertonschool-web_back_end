@@ -43,24 +43,15 @@ def login() -> str:
 
     return response
 
-def destroy_session(self, request=None):
-        """
-        Deletes the user session / logout.
-        """
-        if request is None:
-            return False
+@app_views.route('/auth_session/logout', methods=['DELETE'],
+                 strict_slashes=False)
+def logout() -> str:
+    """ DELETE /api/v1/auth_session/logout
+    Handles the logout process for Session Authentication.
+    """
+    from api.v1.app import auth
 
-        session_id = self.session_cookie(request)
-        if not session_id:
-            return False
+    if not auth.destroy_session(request):
+        abort(404)
 
-        user_id = self.user_id_for_session_id(session_id)
-        if not user_id:
-            return False
-
-        try:
-            del self.user_id_by_session_id[session_id]
-        except KeyError:
-            pass
-
-        return True
+    return jsonify({}), 200
