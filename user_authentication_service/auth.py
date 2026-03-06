@@ -146,3 +146,26 @@ class Auth:
             user_id (int): L'identifiant (ID) de l'utilisateur.
         """
         self._db.update_user(user_id, session_id=None)
+
+    def get_reset_password_token(self, email: str) -> str:
+        """
+        Génère un jeton de réinitialisation de mot de passe pour un utilisateur
+
+        Args:
+            email (str): L'email de l'utilisateur.
+
+        Returns:
+            str: Le jeton de réinitialisation généré (UUID).
+
+        Raises:
+            ValueError: Si l'utilisateur n'existe pas.
+        """
+        try:
+            user = self._db.find_user_by(email=email)
+        except NoResultFound:
+            raise ValueError("User not found")
+
+        reset_token = _generate_uuid()
+        self._db.update_user(user.id, reset_token=reset_token)
+
+        return reset_token
