@@ -178,13 +178,16 @@ class Auth:
             password (str): Le nouveau mot de passe en clair.
 
         Raises:
-            ValueError: Si le jeton de réinitialisation est invalide ou
-                        ne correspond à aucun utilisateur.
+            ValueError: Si le jeton de réinitialisation est invalide, None,
+                        ou ne correspond à aucun utilisateur.
         """
+        if not reset_token:
+            raise ValueError
+
         try:
             user = self._db.find_user_by(reset_token=reset_token)
         except NoResultFound:
-            raise ValueError("Invalid reset token")
+            raise ValueError
 
         hashed_password = _hash_password(password)
 
