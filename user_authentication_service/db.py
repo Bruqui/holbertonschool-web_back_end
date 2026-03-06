@@ -5,6 +5,9 @@ Module DB pour gérer les interactions avec la base de données.
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
+
 from user import Base, User
 
 
@@ -47,3 +50,22 @@ class DB:
         self._session.add(new_user)
         self._session.commit()
         return new_user
+
+    def find_user_by(self, **kwargs) -> User:
+        """
+        Trouve le premier utilisateur correspondant aux critères de recherche.
+
+        Args:
+            **kwargs: Critères de recherche (ex: email="test@test.com").
+
+        Returns:
+            User: L'utilisateur correspondant.
+
+        Raises:
+            NoResultFound: Si aucun utilisateur n'est trouvé.
+            InvalidRequestError: Si un critère ne correspond à aucune colonne.
+        """
+        user = self._session.query(User).filter_by(**kwargs).first()
+        if user is None:
+            raise NoResultFound
+        return user
