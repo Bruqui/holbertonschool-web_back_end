@@ -134,3 +134,24 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         Stops the class-level patcher after all tests have run.
         """
         cls.get_patcher.stop()
+
+    def test_public_repos(self) -> None:
+        """
+        Integration test to verify that public_repos returns the
+        expected list of repositories based on the loaded fixtures.
+        """
+        client = GithubOrgClient("google")
+
+        self.assertEqual(client.public_repos(), self.expected_repos)
+
+    def test_public_repos_with_license(self) -> None:
+        """
+        Integration test to verify that public_repos filters and returns
+        the expected list of repositories when given a specific license.
+        """
+        client = GithubOrgClient("google")
+
+        self.assertEqual(
+            client.public_repos(license="apache-2.0"),
+            self.apache2_repos
+        )
