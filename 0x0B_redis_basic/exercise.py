@@ -53,7 +53,6 @@ def replay(method: Callable) -> None:
     Displays the history of calls of a particular function, showing
     the total call count along with inputs and outputs history.
     """
-    # Accéder à l'instance redis via l'attribut du paramètre self lié à la méthode
     local_redis = getattr(method.__self__, "_redis", None)
     if not isinstance(local_redis, redis.Redis):
         return
@@ -62,15 +61,12 @@ def replay(method: Callable) -> None:
     inputs_key = f"{qualname}:inputs"
     outputs_key = f"{qualname}:outputs"
 
-    # Récupération de l'historique complet depuis les listes Redis
     inputs = local_redis.lrange(inputs_key, 0, -1)
     outputs = local_redis.lrange(outputs_key, 0, -1)
 
     print(f"{qualname} was called {len(inputs)} times:")
 
-    # Association et affichage de chaque couple d'entrée/sortie
     for inp, outp in zip(inputs, outputs):
-        # Décodage des bytes récupérés de Redis en chaînes de caractères UTF-8
         input_str = inp.decode("utf-8")
         output_str = outp.decode("utf-8")
         print(f"{qualname}(*{input_str}) -> {output_str}")
@@ -91,8 +87,8 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @call_history
     @count_calls
+    @call_history
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Generates a random UUID string key, stores the provided data
