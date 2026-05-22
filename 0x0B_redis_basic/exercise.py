@@ -2,7 +2,7 @@
 """
 This module provides a Cache class that interacts with a Redis data store.
 It includes decorators to track performance metrics like call counts and
-execution history.
+execution history, as well as a replay function to display logs.
 """
 from functools import wraps
 import redis
@@ -46,6 +46,34 @@ def call_history(method: Callable) -> Callable:
 
         return output
     return wrapper
+
+
+def replay(method: Callable) -> None:
+    """
+    Displays the history of calls of a particular function, showing
+    the total call count along with inputs and outputs history.
+    """
+    # Accéder à l'instance redis via l'attribut du paramètre self lié à la méthode
+    local_redis = getattr(method.__self__, "_redis", None)
+    if not isinstance(local_redis, redis.Redis):
+        return
+
+    qualname = method.__qualname__
+    inputs_key = f"{qualname}:inputs"
+    outputs_key = f"{qualname}:outputs"
+
+    # Récupération de l'historique complet depuis les listes Redis
+    inputs = local_redis.lrange(inputs_key, 0, -1)
+    outputs = local_redis.lrange(outputs_key, 0, -1)
+
+    print(f"{qualname} was called {len(inputs)} times:")
+
+    # Association et affichage de chaque couple d'entrée/sortie
+    for inp, outp in zip(inputs, outputs):
+        # Décodage des bytes récupérés de Redis en chaînes de caractères UTF-8
+        input_str = inp.decode("utf-8")
+        output_str = outp.decode("utf-8")
+        print(f"{qualname}(*{input_str}) -> {output_str}")
 
 
 class Cache:
