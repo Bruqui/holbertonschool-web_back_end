@@ -9,13 +9,13 @@ import uuid
 from typing import Union, Callable, Optional, Any
 
 
-def count_calls(method: Callable[..., Any]) -> Callable[..., Any]:
+def count_calls(method: Callable) -> Callable:
     """
     A decorator that increments a counter in Redis every time the
     decorated method is called, using the method's __qualname__ as key.
     """
     @wraps(method)
-    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
+    def wrapper(self, *args, **kwargs) -> Any:
         """
         Increments the Redis key named after the method's qualified name
         and returns the result of the original method execution.
@@ -50,9 +50,7 @@ class Cache:
         self._redis.set(key, data)
         return key
 
-    def get(
-        self, key: str, fn: Optional[Callable] = None
-    ) -> Union[str, bytes, int, float, None]:
+    def get(self, key: str, fn: Optional[Callable] = None) -> Any:
         """
         Retrieves data from Redis for the given key. If a callable function
         'fn' is provided, it transforms the data before returning it.
@@ -64,17 +62,15 @@ class Cache:
             return fn(data)
         return data
 
-    def get_str(self, key: str) -> Optional[str]:
+    def get_str(self, key: str) -> str:
         """
         Retrieves data from Redis as a string by decoding the bytes
         using UTF-8 encoding.
         """
-        value = self.get(key, fn=lambda d: d.decode("utf-8"))
-        return str(value) if value is not None else None
+        return self.get(key, fn=lambda d: d.decode("utf-8"))
 
-    def get_int(self, key: str) -> Optional[int]:
+    def get_int(self, key: str) -> int:
         """
         Retrieves data from Redis and converts it to an integer.
         """
-        value = self.get(key, fn=int)
-        return int(value) if value is not None else None
+        return self.get(key, fn=int)
