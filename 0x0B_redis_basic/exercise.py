@@ -1,19 +1,35 @@
 #!/usr/bin/env python3
 """
 This module provides a Cache class that interacts with a Redis data store.
-It allows for storing data under automatically generated unique UUID keys
-and retrieving it with optional type conversion.
+It includes decorators to track performance metrics like call counts.
 """
+from functools import wraps
 import redis
 import uuid
-from typing import Union, Callable, Optional
+from typing import Union, Callable, Optional, Any
+
+
+def count_calls(method: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    A decorator that increments a counter in Redis every time the
+    decorated method is called, using the method's __qualname__ as key.
+    """
+    @wraps(method)
+    def wrapper(self: Any, *args: Any, **kwargs: Any) -> Any:
+        """
+        Increments the Redis key named after the method's qualified name
+        and returns the result of the original method execution.
+        """
+        self._redis.incr(method.__qualname__)
+        return method(self, *args, **kwargs)
+    return wrapper
 
 
 class Cache:
     """
     Cache class for managing data storage inside a Redis database instance.
     It handles initialization, database flushing, data persistence, and
-    type-safe retrieval.
+    tracking execution counts.
     """
 
     def __init__(self) -> None:
@@ -24,6 +40,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """
         Generates a random UUID string key, stores the provided data
